@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz SIPAT</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://i.imgur.com/nv1fd8J.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      border-radius: 10px;
+    }
+    h1 {
+      text-align: center;
+      color: green;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin: 5px 0;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: green;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: darkgreen;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 20px auto;
+      max-width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/67/CIPA_simbolo.png" alt="Logo CIPA" class="logo" />
+    <h1>Quiz SIPAT</h1>
+
+    <div id="identificacao">
+      <p>Digite seu nome e setor para começar:</p>
+      <input type="text" id="nome" placeholder="Seu nome" required />
+      <input type="text" id="setor" placeholder="Seu setor" required />
+      <button onclick="iniciarQuiz()">Começar</button>
+    </div>
+
+    <form id="quiz" style="display:none;">
+      <div id="perguntas"></div>
+      <button type="submit">Confirmar presença e participar do sorteio</button>
+    </form>
+  </div>
+
+  <script>
+    const todasPerguntas = [
+      {
+        pergunta: "O que significa CIPA?",
+        opcoes: ["Comissão Interna de Prevenção de Acidentes", "Comissão de Inspeção Pessoal de Ambiente", "Controle Interno de Prevenções e Ações"],
+        correta: 0
+      },
+      {
+        pergunta: "Qual EPI é usado para proteger os olhos?",
+        opcoes: ["Capacete", "Óculos de segurança", "Luva"],
+        correta: 1
+      },
+      {
+        pergunta: "Por que devemos usar os EPIs?",
+        opcoes: ["Porque são bonitos", "Porque o chefe mandou", "Para nossa segurança"],
+        correta: 2
+      },
+      {
+        pergunta: "Qual número devemos ligar em caso de emergência?",
+        opcoes: ["190", "192", "193"],
+        correta: 2
+      },
+      {
+        pergunta: "O que fazer ao ver um fio desencapado?",
+        opcoes: ["Ignorar", "Avisar a CIPA ou setor responsável", "Tocar para ver se dá choque"],
+        correta: 1
+      },
+      {
+        pergunta: "Qual desses é um exemplo de EPI?",
+        opcoes: ["Escada", "Máscara", "Extintor"],
+        correta: 1
+      },
+      {
+        pergunta: "Quem é responsável pela segurança no ambiente de trabalho?",
+        opcoes: ["Só a CIPA", "Somente o chefe", "Todos os colaboradores"],
+        correta: 2
+      }
+    ];
+
+    let perguntasSelecionadas = [];
+
+    function embaralhar(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function iniciarQuiz() {
+      const nome = document.getElementById('nome').value.trim();
+      const setor = document.getElementById('setor').value.trim();
+      if (!nome || !setor) {
+        alert("Por favor, preencha nome e setor.");
+        return;
+      }
+
+      document.getElementById('identificacao').style.display = "none";
+      document.getElementById('quiz').style.display = "block";
+
+      perguntasSelecionadas = embaralhar([...todasPerguntas]).slice(0, 5);
+      const container = document.getElementById('perguntas');
+      container.innerHTML = "";
+
+      perguntasSelecionadas.forEach((p, index) => {
+        const div = document.createElement('div');
+        div.className = "question";
+        div.innerHTML = `<p><strong>${index + 1}. ${p.pergunta}</strong></p>`;
+        p.opcoes.forEach((opcao, i) => {
+          const id = `p${index}_o${i}`;
+          div.innerHTML += `
+            <label>
+              <input type="radio" name="p${index}" value="${opcao}" required /> ${opcao}
+            </label>
+          `;
+        });
+        container.appendChild(div);
+      });
+
+      document.getElementById('quiz').onsubmit = function(e) {
+        e.preventDefault();
+
+        const respostas = perguntasSelecionadas.map((p, i) => {
+          const resposta = document.querySelector(`input[name="p${i}"]:checked`);
+          return `${i + 1}. ${p.pergunta}\nResposta: ${resposta ? resposta.value : 'Não respondida'}`;
+        });
+
+        const mensagem = 
+          `📋 *Confirmação de Presença - SIPAT* \n` +
+          `Nome: ${nome}\nSetor: ${setor}\n\n` +
+          `🧠 *Respostas do Quiz:*\n${respostas.join("\n\n")}`;
+
+        const whatsappURL = `https://wa.me/5515981214792?text=${encodeURIComponent(mensagem)}`;
+        window.open(whatsappURL, "_blank");
+      }
+    }
+  </script>
+</body>
+</html>
